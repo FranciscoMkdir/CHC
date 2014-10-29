@@ -1,7 +1,7 @@
 import math
 
 
-class Classifier:
+class Clasificador_Bayes:
     def __init__(self, archivo, formato):
 
         total = 0
@@ -16,9 +16,7 @@ class Classifier:
         self.prior = {}
         self.conditional = {}
 
-        filename = archivo
-
-        f = open(filename)
+        f = open(archivo)
         lines = f.readlines()
         f.close()
 
@@ -56,7 +54,7 @@ class Classifier:
             for columnValue in nums:
                 col += 1
                 totals[category].setdefault(col, 0)
-                # totals[category][col].setdefault(columnValue, 0)
+                #totals[category][col].setdefault(columnValue, 0)
                 totals[category][col] += columnValue
                 numericValues[category].setdefault(col, [])
                 numericValues[category][col].append(columnValue)
@@ -112,22 +110,63 @@ class Classifier:
                 mean = self.means[category][col]
                 ssd = self.ssd[category][col]
                 ePart = math.pow(math.e, -(x - mean) ** 2 / (2 * ssd ** 2))
-                prob *= (1.0 / (sqrt2pi ** ssd)) * ePart
+                prob *= (1.0 / (sqrt2pi * ssd)) * ePart
                 col += 1
 
             results.append((prob, category))
         return max(results)[1]
 
+    def evaluar(self, archivo):
+
+        clases = []
+        aciertos = []
+        c = 0;
+
+        f = open(archivo)
+        lines = f.readlines()
+        f.close()
+
+        for line in lines:
+            l = line.strip().split('\t')
+            clases.append(l[-1])
+
+        total = len(clases)
+
+        print("Numero de ejemplo: " + str(total))
+        print (clases)
+
+
+        vector = []
+        for line in lines:
+            l = line.strip().split('\t')
+            l = l[:-1]
+            for e in l:
+                vector.append(float(e))
+            res = self.clasificar([], vector)
+            aciertos.append(res)
+            vector = []
+
+        #Calcular porcentaje de aciertos
+        for e in range(len(clases)):
+            if (clases[e] == aciertos[e]):
+                c += 1
+        #Regla se tres
+        por = (c * 100) / len(clases)
+        print"Porcentaje de aciertos: ", str(por)
 
 
 
 
-#c = Classifier("datos", "attr\tattr\tattr\tclass")
-#print(c.clasificar(['health', 'moderate', 'moderate'], []))
-#print(c.clasificar(['both', 'sedentary', 'moderate'], []))
-
-c2 = Classifier("pima_e", "num\tnum\tnum\tnum\tnum\tnum\tnum\tnum\tclass")
-print(c2.clasificar([], [3, 78, 50, 32, 88, 31.0, 0.248, 26]))
+c = Clasificador_Bayes("datos", "attr\tattr\tattr\tclass")
+print(c.clasificar(['health', 'moderate', 'moderate'], []))
+print(c.clasificar(['both', 'sedentary', 'moderate'], []))
 
 
+c2 = Clasificador_Bayes("pima_e", "num\tnum\tnum\tnum\tnum\tnum\tnum\tnum\tclass")
+print("Clase: " + str(c2.clasificar([], [3, 78, 50, 32, 88, 31.0, 0.248, 26])))
+print("Clase: " + str(c2.clasificar([], [2, 197, 70, 45, 543, 30.5, 0.158, 53])))
+print("Clase: " + str(c2.clasificar([], [3, 78, 50, 32, 88, 31.0, 0.248, 26])))
+print("Clase: " + str(c2.clasificar([], [1, 91, 54, 25, 100, 25.2, 0.234, 23])))
 
+c2.evaluar("pima_v")
+c2.evaluar("pima_v2")
