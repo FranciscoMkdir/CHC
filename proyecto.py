@@ -30,7 +30,6 @@ class CHC:
         print (self.crom_ini)
 
 
-
     def init_P(self, t):
 
         print("Poblacion Inicial ")
@@ -59,7 +58,7 @@ class CHC:
             else:
                 form += 'attr' + '\t'
         form += 'class'
-        print("Formato: " + form)
+        #print("Formato: " + form)
 
 
         c_i = 0
@@ -77,8 +76,11 @@ class CHC:
             self.eval[c_i] = r
             c_i += 1
 
+
+        f_aux.close()
         print("Evaluaciones")
         print (self.eval)
+        return self.eval
 
 
     #Evalua cromosoma inicial
@@ -145,20 +147,51 @@ class CHC:
                 #print("Desendencia")
                 ##print(h1)
                 #print(h2)
-                aux += 1
                 self.p_d[aux] = h1
                 self.p_d[aux + 1] = h2
+                aux += 1
+
 
 
         print("Descendencia")
         print (self.p_d)
+        return self.p_d
 
 
     #Seleccion elitista
     def sel_eti(self, p, h):
         self.p_n = {}
 
+        punt_p = g.eval_P(p)
+        punt_h = g.eval_P(h)
+        punt = {}
 
+
+        cont = 0
+        for key in punt_p:
+            punt[cont] = punt_p[key]
+            cont += 1
+        for key in punt_h:
+            punt[cont] = punt_h[key]
+            cont += 1
+
+        max = 0
+        key_d = None
+
+        for e in range(self.tam):
+
+            for key in punt:
+                if (punt[key] >= max):
+                    max = punt[key]
+                    key_d = key
+
+            del (punt[key_d])
+
+            self.p_n[e] = max
+            max = 0
+
+        print("Nueva poblacion")
+        print(self.p_n)
         return self.p_n
 
 
@@ -299,8 +332,8 @@ class Clasificador_Bayes:
 
         total = len(clases)
 
-        print("Numero de ejemplo: " + str(total))
-        print (clases)
+        #print("Numero de ejemplo: " + str(total))
+        #print (clases)
 
 
         vector_num = []
@@ -326,7 +359,7 @@ class Clasificador_Bayes:
 
 
 
-        print(aciertos)
+        #print(aciertos)
 
 
         #Calcular porcentaje de aciertos
@@ -336,7 +369,7 @@ class Clasificador_Bayes:
                 c += 1
         #Regla se tres
         por = (c * 100) / len(clases)
-        print"Porcentaje de aciertos: ", str(por)
+        #print"Porcentaje de aciertos: ", str(por)
         return por
 
 #c = Clasificador_Bayes("datos", "attr\tattr\tattr\tclass")
@@ -364,5 +397,6 @@ class Clasificador_Bayes:
 g = CHC("T")
 p = g.init_P(10)
 #g.eval_Crom()
-g.hux(p)
+desc = g.hux(p)
+g.sel_eti(p,desc)
 #g.eval_P(p)
