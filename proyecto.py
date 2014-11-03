@@ -1,5 +1,8 @@
 import math
 import random
+from scipy.spatial.distance import hamming as ham
+
+
 
 class CHC:
 
@@ -7,8 +10,8 @@ class CHC:
 
         f = open(archivo)
 
-        self.num = int(f.readline())
-        print ("Numero instancias: " + str(self.num))
+        self.tam_crom = int(f.readline())
+        print ("Numero instancias: " + str(self.tam_crom))
 
         self.tip = f.readline()
         self.tip = self.tip.strip().split('\t')
@@ -20,7 +23,7 @@ class CHC:
         f.close()
 
         self.crom_ini = []
-        for i in range(self.num):
+        for i in range(self.tam_crom):
             self.crom_ini.append(1)
 
         print ("Cromosoma inicial ")
@@ -36,7 +39,7 @@ class CHC:
         self.tam = t
 
         for i in range(self.tam):
-            for e in range(self.num):
+            for e in range(self.tam_crom):
                 crom.append(random.randrange(0,2))
             self.pob[i] = crom
             crom = []
@@ -50,41 +53,29 @@ class CHC:
     def eval_P(self, p):
         self.eval = {}
         form = ""
-
         for e in range(len(self.tip[:-1])):
             if self.tip[e] == '0':
                 form += 'num' + '\t'
             else:
                 form += 'attr' + '\t'
         form += 'class'
-
         print("Formato: " + form)
-
-
-
 
 
         c_i = 0
         for ip in range(len(p)):
-
             f_aux = open("aux.txt","w")
-
             c_e = 0
             v = p[c_i]
             for line in self.lines:
                 if v[c_e] == 1:
                     f_aux.write(line)
                 c_e += 1
-
             f_aux.close()
             fit = Clasificador_Bayes("aux.txt", form)
             r = fit.evaluar("T_V")
-
             self.eval[c_i] = r
             c_i += 1
-
-
-
 
         print("Evaluaciones")
         print (self.eval)
@@ -101,30 +92,74 @@ class CHC:
             else:
                 form += 'attr' + '\t'
         form += 'class'
-
         print("Formato: " + form)
 
         f_aux = open("aux.txt","w")
         for line in self.lines:
             f_aux.write(line)
-
         f_aux.close()
 
         fit = Clasificador_Bayes("aux.txt", form)
         fit.evaluar("T_V")
 
 
+    #HUX
+    def hux(self, p, u = 0):
+        if u == 0:
+            u = self.tam_crom/4
 
+        print ("Umbrar de apareamiento: " + str(u))
+
+        self.p_d = {}
+        aux = 0
+        for n in range(int(self.tam/2)):
+
+            p1 = p[random.randrange(0, len(p))]
+            p2 = p[random.randrange(0, len(p))]
+
+            if ( (ham(p1, p2) * self.tam_crom)  > u):
+                #print ("\nCruze de: ")
+                #print(p1)
+                #print(p2)
+
+                m = (ham(p1, p2) * self.tam_crom) / 2
+                m = int(m)
+                #print("Numero de bits de intercambio: " + str(m))
+
+                h1 = p1
+                h2 = p2
+
+                while (m > 0):
+                    bit_p = random.randrange(0, len(p1))
+                    if (p1[bit_p] != p2[bit_p]) and (p1[bit_p] != h2[bit_p]):
+
+                        # Crear decendiente de p1, p2
+                        aux1 = p2[bit_p]
+                        aux2 = p1[bit_p]
+
+                        h1[bit_p] = aux1
+                        h2[bit_p] = aux2
+
+                        m -= 1
+
+                #print("Desendencia")
+                ##print(h1)
+                #print(h2)
+                aux += 1
+                self.p_d[aux] = h1
+                self.p_d[aux + 1] = h2
+
+
+        print("Descendencia")
+        print (self.p_d)
 
 
     #Seleccion elitista
     def sel_eti(self, p, h):
-        pass
+        self.p_n = {}
 
 
-
-
-
+        return self.p_n
 
 
 
@@ -325,7 +360,9 @@ class Clasificador_Bayes:
 #print("Clase: " + str(c4.clasificar(['no'], [1, 91, 54, 25, 100, 25.2, 0.234,  23])))
 #print("Clase: " + str(c4.clasificar(['yes'], [2, 197, 70, 45, 543, 30.5, 0.158, 53])))
 
+
 g = CHC("T")
 p = g.init_P(10)
-g.eval_Crom()
-g.eval_P(p)
+#g.eval_Crom()
+g.hux(p)
+#g.eval_P(p)
