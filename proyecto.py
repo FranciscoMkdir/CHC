@@ -162,36 +162,51 @@ class CHC:
     def sel_eti(self, p, h):
         self.p_n = {}
 
+        print("Seleccion elitista")
+        #print(p)
+        #print(h)
+
         punt_p = g.eval_P(p)
         punt_h = g.eval_P(h)
-        punt = {}
 
-
+        pob_total = {}
+        l_aux = []
         cont = 0
-        for key in punt_p:
-            punt[cont] = punt_p[key]
+        for key in p:
+            l_aux.append(p[key])
+            l_aux.append(punt_p[key])
+            pob_total[cont] = l_aux
+            l_aux = []
             cont += 1
-        for key in punt_h:
-            punt[cont] = punt_h[key]
+
+        for key in h:
+            l_aux.append(h[key])
+            l_aux.append(punt_h[key])
+            pob_total[cont] = l_aux
+            l_aux = []
             cont += 1
+
+        print("Poblacion total")
+        print(pob_total)
+
 
         max = 0
         key_d = None
 
         for e in range(self.tam):
-
-            for key in punt:
-                if (punt[key] >= max):
-                    max = punt[key]
+            for key in pob_total:
+                if (pob_total[key][1] >= max):
+                    max = pob_total[key][1]
                     key_d = key
-
-            del (punt[key_d])
-
-            self.p_n[e] = max
+            self.p_n[e] = pob_total[key_d]
             max = 0
+            del (pob_total[key_d])
 
         print("Nueva poblacion")
-        print(self.p_n)
+        print (self.p_n)
+
+        #-----------
+
         return self.p_n
 
 
