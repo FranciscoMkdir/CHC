@@ -1,3 +1,4 @@
+import copy
 import math
 import random
 from scipy.spatial.distance import hamming as ham
@@ -60,12 +61,12 @@ class CHC:
         form += 'class'
         #print("Formato: " + form)
 
-
         c_i = 0
         for ip in range(len(p)):
             f_aux = open("aux.txt","w")
             c_e = 0
             v = p[c_i]
+
             for line in self.lines:
                 if v[c_e] == 1:
                     f_aux.write(line)
@@ -112,6 +113,7 @@ class CHC:
 
         print ("Umbrar de apareamiento: " + str(u))
 
+
         self.p_d = {}
         aux = 0
         for n in range(int(self.tam/2)):
@@ -120,14 +122,8 @@ class CHC:
             p2 = p[random.randrange(0, len(p))]
 
             if ( (ham(p1, p2) * self.tam_crom)  > u):
-                #print ("\nCruze de: ")
-                #print(p1)
-                #print(p2)
-
                 m = (ham(p1, p2) * self.tam_crom) / 2
                 m = int(m)
-                #print("Numero de bits de intercambio: " + str(m))
-
                 h1 = p1
                 h2 = p2
 
@@ -138,20 +134,12 @@ class CHC:
                         # Crear decendiente de p1, p2
                         aux1 = p2[bit_p]
                         aux2 = p1[bit_p]
-
                         h1[bit_p] = aux1
                         h2[bit_p] = aux2
-
                         m -= 1
-
-                #print("Desendencia")
-                ##print(h1)
-                #print(h2)
                 self.p_d[aux] = h1
                 self.p_d[aux + 1] = h2
                 aux += 1
-
-
 
         print("Descendencia")
         print (self.p_d)
@@ -163,8 +151,7 @@ class CHC:
         self.p_n = {}
 
         print("Seleccion elitista")
-        #print(p)
-        #print(h)
+
 
         punt_p = g.eval_P(p)
         punt_h = g.eval_P(h)
@@ -203,11 +190,16 @@ class CHC:
             del (pob_total[key_d])
 
         print("Nueva poblacion")
+        p_nueva = {}
+
+        for key in self.p_n:
+            p_nueva[key] = self.p_n[key][0]
+
         print (self.p_n)
 
         #-----------
 
-        return self.p_n
+        return p_nueva
 
 
 
@@ -413,5 +405,9 @@ g = CHC("T")
 p = g.init_P(10)
 #g.eval_Crom()
 desc = g.hux(p)
-g.sel_eti(p,desc)
+p2 = g.sel_eti(p,desc)
 #g.eval_P(p)
+
+p_aux = copy.deepcopy(p2)
+desc= g.hux(p2)
+p3 = g.sel_eti(p_aux, desc)
