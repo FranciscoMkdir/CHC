@@ -46,7 +46,7 @@ class CHC:
 
 
         print (self.pob)
-        return self.pob
+        return self.pob, self.tam_crom
 
 
     #Evalua a la poblacion
@@ -62,6 +62,8 @@ class CHC:
         #print("Formato: " + form)
 
         c_i = 0
+
+
         for ip in range(len(p)):
             f_aux = open("aux.txt","w")
             c_e = 0
@@ -77,8 +79,9 @@ class CHC:
             self.eval[c_i] = r
             c_i += 1
 
+        if range(len(p) > 0):
+            f_aux.close()
 
-        f_aux.close()
         print("Evaluaciones")
         print (self.eval)
         return self.eval
@@ -199,7 +202,45 @@ class CHC:
 
         #-----------
 
-        return p_nueva
+        return p_nueva, self.p_n
+
+
+    #Reinicializacion
+    def reinicializacion(self, p, umb):
+
+        p_r = {}
+        max = 0
+        crom_max = []
+        print("Reinicializacion")
+        for key in p:
+            if p[key][1] > max:
+                max = p[key][1]
+                crom_max = p[key][0]
+
+        print ("Mejor Individuo(cromosoma)")
+        print (str(crom_max) + " , " + str(max))
+
+        porc =  int(100 * float (umb) /float (self.tam_crom))
+        print ("::" + str(porc))
+
+        crom = copy.deepcopy(crom_max)
+
+
+        for i in range(self.tam):
+            crom = copy.deepcopy(crom_max)
+            for j in range(porc):
+                crom[random.randrange(0, self.tam_crom)] = random.randrange(0,2)
+
+
+            p_r[i] = crom
+
+
+
+        print ("Nueva poblacion")
+        print(p_r)
+        return p_r
+
+
 
 
 
@@ -401,13 +442,38 @@ class Clasificador_Bayes:
 #print("Clase: " + str(c4.clasificar(['yes'], [2, 197, 70, 45, 543, 30.5, 0.158, 53])))
 
 
-g = CHC("T")
-p = g.init_P(10)
-#g.eval_Crom()
-desc = g.hux(p)
-p2 = g.sel_eti(p,desc)
-#g.eval_P(p)
 
-p_aux = copy.deepcopy(p2)
-desc= g.hux(p2)
-p3 = g.sel_eti(p_aux, desc)
+#print("CHC")
+#print("Parametros")
+#num_g = int(raw_input("Numero de generaciones (iteraciones): "))
+#tam_p = int(raw_input("Tamano de la poblacion: "))
+#umb_c = int(raw_input("Umbral (Si es 0, entonces se toma por defecto L/4, donde L = longitud del cromosoma) :"))
+#umb_r = int(raw_input("Porcentaje reinicializacion (Si es 0, entonces se toma por defecto 35%:"))
+
+umb_r = 3.5
+
+
+g = CHC("T")
+p, tam_c = g.init_P(10)
+
+d = tam_c / 4
+
+for i in range(200):
+    p_aux = copy.deepcopy(p)
+    desc = g.hux(p, d)
+    p, p_eva = g.sel_eti(p_aux,desc)
+
+    if (len(desc)) == 0:
+        d = d - 1
+
+    if (d == 0) :
+        print("*** Reinicializacion ***")
+        print("Iteracion : " + str(i))
+        p = g.reinicializacion(p_eva, umb_r )
+        d = tam_c / 4
+
+
+
+print("***************")
+print("Terminacion")
+print("***************")
