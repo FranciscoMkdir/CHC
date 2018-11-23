@@ -1,0 +1,13 @@
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+        {
+            "appID": "75D5V34VAZ.enigmo.com.appEnigmo",
+            "paths": [
+            "*"
+            ]
+        }
+        ]
+    }
+}
